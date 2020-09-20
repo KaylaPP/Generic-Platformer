@@ -13,7 +13,7 @@ void kpg::LoopingEntity::CalcThread()
 {
     OnCreate();
     
-    auto period = std::chrono::milliseconds(nPeriod.getNumerator());
+    auto period = std::chrono::milliseconds(Period.getNumerator());
     auto next = std::chrono::steady_clock::now();
     auto prev = next - period;
     while (!end)

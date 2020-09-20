@@ -9,7 +9,7 @@ namespace kpg
     {
     protected:
         bool end = false;
-        Fraction nPeriod; // In milliseconds
+        Fraction Period; // In milliseconds
     private:
         virtual void OnCreate() = 0;
         virtual void OnUpdate() = 0;
