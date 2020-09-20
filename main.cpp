@@ -340,6 +340,7 @@ public:
 
 int main(int argc, char const *argv[])
 {
+    srand(time(nullptr));
 	PortalDemo demo;
 	if (demo.Construct(nWindowWidth, nWindowHeight, 1, 1, false, true))
 		demo.Start();
