@@ -18,6 +18,6 @@ namespace kpg
     public:
         bool Spawn();
     };
-};
+}
 
 #endif /* LoopingEntity_hpp */

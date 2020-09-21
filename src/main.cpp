@@ -307,6 +307,10 @@ public:
     bool OnUserUpdate(float fElapsedTime) override
     {
         Clear(olc::BLACK);
+
+        if(GetKey(olc::E).bPressed)
+            return false;
+
         if(p.Exists())
             DrawDecal({ p.GetXPos(), p.GetYPos() }, player.Decal());
         if(GetKey(olc::SPACE).bPressed)
