@@ -1,37 +1,24 @@
 #define OLC_PGE_APPLICATION
-#include "Fraction.hpp"
 #include "LoopingEntity.hpp"
 #include "olcPixelGameEngine.h"
 
 #include <cstdlib>
+#include <unordered_map>
 
-const int nWindowWidth = 1280;
-const int nWindowHeight = 800;
+const int nWindowWidth = 640;
+const int nWindowHeight = 480;
 
 bool start = false;
 bool bJumped = false;
 bool bMovingLeft = false;
 bool bMovingRight = false;
 
-bool isPositive(Fraction f)
-{
-    return double(f.getNumerator()) / double(f.getDenominator()) > 0;
-}
-
-Fraction abs(Fraction f)
-{
-    Fraction absfrac(f);
-    f.setNumerator(std::abs(f.getNumerator()));
-    f.setDenominator(std::abs(f.getDenominator()));
-    return f;
-}
-
 class BouncyBall : public kpg::LoopingEntity
 {
 private:
-    Fraction Gravity;
-    Fraction XPos, YPos;
-    Fraction XVel, YVel;
+    float Gravity;
+    float XPos, YPos;
+    float XVel, YVel;
 public:
     BouncyBall()
     {
@@ -43,14 +30,12 @@ private:
     
     bool OnCreate() override
     {
-        Gravity = Fraction(1000);
-        XPos = Fraction(rand() % (nWindowWidth - 32));
-        YPos = Fraction(rand() % (nWindowHeight - 32));
-        YVel = Fraction(0);
-        XVel = Fraction(rand() % 500);
-        Period = Fraction(1); // In milliseconds
-        
-        Period.setDenominator(1000); // For easy conversion to seconds in multiplication
+        Gravity = 1000.0f;
+        XPos = float(rand() % (nWindowWidth - 32));
+        YPos = float(rand() % (nWindowHeight - 32));
+        YVel = float(rand() % 1000);
+        XVel = float(rand() % 1000);
+        Period = 20; // In milliseconds
 
         return true;
     }
@@ -59,34 +44,29 @@ private:
     {
         if(start)
         {
-            YVel += Gravity * Period;
-            YPos += YVel * Period;
-            XPos += XVel * Period;
-            if(YPos < Fraction(0))
+            YVel += Gravity * Period / 1000.0f;
+            YPos += YVel * Period / 1000.0f;
+            XPos += XVel * Period / 1000.0f;
+            if(YPos < 0)
             {
-                YPos = Fraction(0);
-                YVel = YVel * Fraction(-1);
+                YPos = 0;
+                YVel = YVel * -0.95f;
             }
-            if(YPos > Fraction(nWindowHeight - 32))
+            if(YPos > nWindowHeight - 32)
             {
-                YPos = Fraction(nWindowHeight - 32);
-                YVel = YVel * Fraction(-1);
+                YPos = nWindowHeight - 32;
+                YVel = YVel * -0.95f;
             }
-            if(XPos < Fraction(0))
+            if(XPos < 0)
             {
-                XPos = Fraction(0);
-                XVel = XVel * Fraction(-1);
+                XPos = 0;
+                XVel = XVel * -0.95f;
             }
-            if(XPos > Fraction(nWindowWidth - 32))
+            if(XPos > nWindowWidth - 32)
             {
-                XPos = Fraction(nWindowWidth - 32);
-                XVel = XVel * Fraction(-1);
+                XPos = nWindowWidth - 32;
+                XVel = XVel * -0.95f;
             }
-            
-            XPos.reduce();
-            YPos.reduce();
-            YVel.reduce();
-            XVel.reduce();
         }
 
         return true;
@@ -137,11 +117,11 @@ public:
 class Player : public kpg::LoopingEntity
 {
 private:
-    Fraction Gravity;
-    Fraction XPos, YPos;
-    Fraction XVel, YVel;
-    Fraction XAccel;
-    Fraction XVelMax;
+    float Gravity;
+    float XPos, YPos;
+    float XVel, YVel;
+    float XAccel;
+    float XVelMax;
 public:
     Player()
     {
@@ -155,16 +135,14 @@ private:
     {
         // Override values here. Do some other stuff too maybe
         // Velocity is pixels per second and acceleration is pixels per second^2
-        Gravity = Fraction(1000);
-        XPos = Fraction(0);
-        YPos = Fraction(0);
-        YVel = Fraction(0);
-        XVel = Fraction(200);
-        XAccel = Fraction(1000);
-        XVelMax = Fraction(500);
-        Period = Fraction(1); // In milliseconds
-        
-        Period.setDenominator(1000); // For easy conversion to seconds in multiplication
+        Gravity = 1000.0f;
+        XPos = 0.0f;
+        YPos = 0.0f;
+        YVel = 0.0f;
+        XVel = 200.0f;
+        XAccel = 1000.0f;
+        XVelMax = 500.0f;
+        Period = 1; // In milliseconds
 
         return true;
     }
@@ -174,69 +152,64 @@ private:
         if(start)
         {
             if(bMovingLeft)
-                XVel -= XAccel * Period;
+                XVel -= XAccel * Period / 1000.0f;
             if(bMovingRight)
-                XVel += XAccel * Period;
+                XVel += XAccel * Period / 1000.0f;
             
             if(!bMovingLeft && !bMovingRight)
             {
-                if(isPositive(XVel))
+                if(XVel > 0)
                 {
-                    XVel -= XAccel * Period;
-                    if(XVel < Fraction(0))
+                    XVel -= XAccel * Period / 1000.0f;
+                    if(XVel < 0)
                     {
-                        XVel = Fraction(0);
+                        XVel = 0.0f;
                     }
                 }
                 else
                 {
-                    XVel += XAccel * Period;
-                    if(XVel > Fraction(0))
+                    XVel += XAccel * Period / 1000.0f;
+                    if(XVel > 0)
                     {
-                        XVel = Fraction(0);
+                        XVel = 0.0f;
                     }
                 }
             }
             
             if(abs(XVel) > abs(XVelMax))
             {
-                XVel = isPositive(XVel) ? XVelMax : XVelMax * Fraction(-1);
+                XVel = XVel > 0 ? XVelMax : XVelMax * -1.0f;
             }
             
             if(bJumped)
             {
-                YVel = Fraction(-1000);
+                YVel = -1000.0f;
                 bJumped = false;
             }
             
-            YVel += Gravity * Period;
-            YPos += YVel * Period;
-            XPos += XVel * Period;
-            if(YPos < Fraction(0))
+            YVel += Gravity * Period / 1000.0f;
+            YPos += YVel * Period / 1000.0f;
+            XPos += XVel * Period / 1000.0f;
+            if(YPos < 0)
             {
-                YPos = Fraction(0);
-                YVel = Fraction(0);
+                YPos = 0.0f;
+                YVel = 0.0f;
             }
-            if(YPos > Fraction(nWindowHeight - 64))
+            if(YPos > nWindowHeight - 64)
             {
-                YPos = Fraction(nWindowHeight - 64);
-                YVel = Fraction(0);
+                YPos = float(nWindowHeight - 64);
+                YVel = 0.0f;
             }
-            if(XPos < Fraction(0))
+            if(XPos < 0)
             {
-                XPos = Fraction(0);
-                XVel = Fraction(0);
+                XPos = 0.0f;
+                XVel = 0.0f;
             }
-            if(XPos > Fraction(nWindowWidth - 64))
+            if(XPos > nWindowWidth - 64)
             {
-                XPos = Fraction(nWindowWidth - 64);
-                XVel = Fraction(0);
+                XPos = float(nWindowWidth - 64);
+                XVel = 0.0f;
             }
-            
-            XPos.reduce();
-            YPos.reduce();
-            YVel.reduce();
-            XVel.reduce();
         }
 
         return true;
@@ -365,9 +338,9 @@ public:
 
 int main(int argc, char const *argv[])
 {
-    srand(time(nullptr));
+    srand(uint32_t(time(nullptr)));
 	PortalDemo demo;
-	if (demo.Construct(nWindowWidth, nWindowHeight, 1, 1, false, false))
+	if (demo.Construct(nWindowWidth, nWindowHeight, 1, 1, false, true))
 		demo.Start();
 
 	return 0;
