@@ -11,7 +11,7 @@ bool kpg::LoopingEntity::Spawn()
 
 void kpg::LoopingEntity::CalcThread()
 {
-    OnCreate();
+    if(!OnCreate()) return;
     
     auto period = std::chrono::milliseconds(Period.getNumerator());
     auto next = std::chrono::steady_clock::now();
@@ -21,7 +21,7 @@ void kpg::LoopingEntity::CalcThread()
         auto now = std::chrono::steady_clock::now();
         prev = now;
         
-        OnUpdate();
+        if(!OnUpdate()) break;
         
         next += period;
         std::this_thread::sleep_until(next);

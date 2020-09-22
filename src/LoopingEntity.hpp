@@ -11,9 +11,9 @@ namespace kpg
         bool end = false;
         Fraction Period; // In milliseconds
     private:
-        virtual void OnCreate() = 0;
-        virtual void OnUpdate() = 0;
-        virtual void OnDestroy() = 0;
+        virtual bool OnCreate() = 0;
+        virtual bool OnUpdate() = 0;
+        virtual bool OnDestroy() = 0;
         void CalcThread();
     public:
         bool Spawn();

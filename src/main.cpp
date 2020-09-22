@@ -41,19 +41,21 @@ public:
 private:
     std::string img;
     
-    void OnCreate() override
+    bool OnCreate() override
     {
         Gravity = Fraction(1000);
         XPos = Fraction(rand() % (nWindowWidth - 32));
         YPos = Fraction(rand() % (nWindowHeight - 32));
         YVel = Fraction(0);
-        XVel = Fraction(500);
-        Period = Fraction(10); // In milliseconds
+        XVel = Fraction(rand() % 500);
+        Period = Fraction(1); // In milliseconds
         
         Period.setDenominator(1000); // For easy conversion to seconds in multiplication
+
+        return true;
     }
     
-    void OnUpdate() override
+    bool OnUpdate() override
     {
         if(start)
         {
@@ -86,11 +88,13 @@ private:
             YVel.reduce();
             XVel.reduce();
         }
+
+        return true;
     }
     
-    void OnDestroy() override
+    bool OnDestroy() override
     {
-        
+        return true;
     }
     
 public:
@@ -147,7 +151,7 @@ public:
 private:
     std::string img;
     
-    void OnCreate() override
+    bool OnCreate() override
     {
         // Override values here. Do some other stuff too maybe
         // Velocity is pixels per second and acceleration is pixels per second^2
@@ -158,12 +162,14 @@ private:
         XVel = Fraction(200);
         XAccel = Fraction(1000);
         XVelMax = Fraction(500);
-        Period = Fraction(10); // In milliseconds
+        Period = Fraction(1); // In milliseconds
         
         Period.setDenominator(1000); // For easy conversion to seconds in multiplication
+
+        return true;
     }
     
-    void OnUpdate() override
+    bool OnUpdate() override
     {
         if(start)
         {
@@ -232,11 +238,13 @@ private:
             YVel.reduce();
             XVel.reduce();
         }
+
+        return true;
     }
     
-    void OnDestroy() override
+    bool OnDestroy() override
     {
-        
+        return true;
     }
     
 public:
@@ -279,10 +287,11 @@ public:
 class PortalDemo : public olc::PixelGameEngine
 {
 private:
+#define ballcount 1
     Player p;
     olc::Renderable player;
-    BouncyBall bs[5];
-    olc::Renderable balls[5];
+    BouncyBall bs[ballcount];
+    olc::Renderable balls[ballcount];
 public:
     PortalDemo()
     {
@@ -295,7 +304,7 @@ public:
         p.Spawn();
         player.Load(p.GetImageName());
         
-        for(int i = 0; i < 5; i++)
+        for(int i = 0; i < ballcount; i++)
         {
             bs[i].Spawn();
             balls[i].Load(bs[i].GetImageName());
@@ -328,7 +337,7 @@ public:
             bJumped = true;
         
         
-        for(int i = 0; i < 5; i++)
+        for(int i = 0; i < ballcount; i++)
         {
             if(bs[i].Exists())
             {
@@ -340,13 +349,25 @@ public:
         DrawStringDecal({ 0.0f, 0.0f }, std::to_string(p.GetXPos()) + ", " + std::to_string(p.GetYPos()) + ", " + std::to_string(p.GetXVel()) + ", " + std::to_string(p.GetYVel()), {0, 255, 0});
         return true;
     }
+
+    bool OnUserDestroy() override 
+    {
+        p.Destroy();
+
+        for(int i = 0; i < ballcount; i++)
+        {
+            bs[i].Destroy();
+        }
+
+        return true;
+    }
 };
 
 int main(int argc, char const *argv[])
 {
     srand(time(nullptr));
 	PortalDemo demo;
-	if (demo.Construct(nWindowWidth, nWindowHeight, 1, 1, false, true))
+	if (demo.Construct(nWindowWidth, nWindowHeight, 1, 1, false, false))
 		demo.Start();
 
 	return 0;
