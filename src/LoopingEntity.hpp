@@ -20,18 +20,16 @@ namespace kpg
         bool end = false;
         float XPos, YPos;
         uint32_t Period; // In milliseconds
-        uint32_t ID;
     private:
-        virtual bool OnCreate() = 0;
-        virtual bool OnUpdate() = 0;
-        virtual bool OnDestroy() = 0;
+        virtual bool OnCreate();
+        virtual bool OnUpdate();
+        virtual bool OnDestroy();
         void CalcThread();
     public:
         bool Exists();
         bool Spawn();
         float GetXPos();
         float GetYPos();
-        uint32_t getID();
         void Destroy();
     };
 

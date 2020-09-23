@@ -6,18 +6,17 @@
 #include <mutex>
 #include <unordered_map>
 
-const int nWindowWidth = 1920;
-const int nWindowHeight = 1080;
+const int nWindowWidth = 1280;
+const int nWindowHeight = 800;
 
 bool start = false;
 bool bJumped = false;
 bool bMovingLeft = false;
 bool bMovingRight = false;
 
-std::mutex EntityIDLock;
-uint32_t NewEntityID = 0;
-
-std::unordered_map<uint32_t, std::pair<std::string, std::shared_ptr<kpg::LoopingEntity>>> Entities;
+uint32_t NextID = 0;
+uint32_t getNextID() { return ++NextID; }
+std::unordered_map<uint32_t, std::pair<std::string, kpg::LoopingEntity*>> Entities;
 
 class BouncyBall : public kpg::LoopingEntity
 {
@@ -27,9 +26,6 @@ private:
 
     bool OnCreate() override
     {
-        while(!EntityIDLock.try_lock());
-        ID = NewEntityID++;
-        EntityIDLock.unlock();
         Gravity = 1000.0f;
         XPos = float(rand() % (nWindowWidth - 32));
         YPos = float(rand() % (nWindowHeight - 32));
@@ -90,9 +86,6 @@ private:
     {
         // Override values here. Do some other stuff too maybe
         // Velocity is pixels per second and acceleration is pixels per second^2
-        while(!EntityIDLock.try_lock());
-        ID = NewEntityID++;
-        EntityIDLock.unlock();
         Gravity = 1000.0f;
         XPos = 0.0f;
         YPos = 0.0f;
@@ -182,8 +175,8 @@ private:
 class PortalDemo : public olc::PixelGameEngine
 {
 private:
-#define ballcount 1
-    std::map<std::string, std::shared_ptr<olc::Renderable>> imgs;
+#define ballcount 5
+    std::unordered_map<std::string, olc::Renderable*> imgs;
 public:
     PortalDemo()
     {
@@ -194,32 +187,25 @@ public:
     bool OnUserCreate() override
     {
         std::string playerimage = "player.png";
-        std::shared_ptr<olc::Renderable> player;
+        olc::Renderable * player = new olc::Renderable();
+        player->Load(playerimage);
         std::string ballimage = "ball.png";
-        std::shared_ptr<olc::Renderable> ball;
-        imgs.insert_or_assign(playerimage, player);
-        imgs.insert_or_assign(ballimage, ball);
-
-        std::shared_ptr<kpg::LoopingEntity> p = std::make_shared<Player>();
-        p.get()->Spawn();
-        imgs[playerimage].get()->Load(playerimage);
-        Entities.insert_or_assign(p.get()->getID(), std::pair<std::string, std::shared_ptr<kpg::LoopingEntity>>( playerimage, p ) );
+        olc::Renderable * ball = new olc::Renderable();
+        ball->Load(ballimage);
         
-        imgs[ballimage].get()->Load(ballimage);
+        imgs[playerimage] = player;
+        imgs[ballimage] = ball;
+
+        kpg::LoopingEntity * p = new Player();
+        p->Spawn();
+        std::pair<std::string, kpg::LoopingEntity*> newplayer(playerimage, p);
+        Entities[getNextID()] = newplayer;
         for(int i = 0; i < ballcount; i++)
         {
-            std::shared_ptr<kpg::LoopingEntity> b = std::make_shared<BouncyBall>();
-            b.get()->Spawn();
-            Entities.insert_or_assign(p.get()->getID(), std::pair<std::string, std::shared_ptr<kpg::LoopingEntity>>( ballimage, b ) );
-        }
-
-        for(auto i = Entities.begin(); i != Entities.end(); i++)
-        {
-            for(auto j = Entities.begin(); j != Entities.end(); j++)
-            {
-                if(i != j && i->second.second.get()->getID() == j->second.second.get()->getID())
-                    std::cout << "NOOOOO!!!";
-            }
+            kpg::LoopingEntity * b = new BouncyBall();
+            b->Spawn();
+            std::pair<std::string, kpg::LoopingEntity*> newball(ballimage, b);
+            Entities[getNextID()] = newball;
         }
 
         return true;
@@ -246,14 +232,18 @@ public:
         if(GetKey(olc::UP).bPressed)
             bJumped = true;
         
-        
-        for(auto i = Entities.begin(); i != Entities.end(); i++)
+        for(const auto & [key, val] : Entities)
         {
-            if(i->second.second.get()->Exists())
+            if(val.second->Exists())
             {
-                DrawDecal({ i->second.second.get()->GetXPos(), i->second.second.get()->GetYPos() }, imgs[i->second.first].get()->Decal());
+                std::cout << key << " " << val.first << std::endl;
+                DrawDecal({ val.second->GetXPos(), val.second->GetYPos() }, imgs[val.first]->Decal());
+                FillRectDecal({ val.second->GetXPos(), val.second->GetYPos() }, { 8.0f, 8.0f }, olc::BLACK);
+                DrawStringDecal({ val.second->GetXPos(), val.second->GetYPos() }, std::to_string(key));
             }
         }
+        
+        std::cout << "=================\n";
 
         return true;
     }
@@ -268,7 +258,7 @@ int main(int argc, char const *argv[])
 {
     srand(uint32_t(time(nullptr)));
 	PortalDemo demo;
-	if (demo.Construct(nWindowWidth, nWindowHeight, 1, 1, false, false))
+	if (demo.Construct(nWindowWidth, nWindowHeight, 1, 1, false, true))
 		demo.Start();
 
 	return 0;

@@ -31,6 +31,19 @@ bool kpg::LoopingEntity::Spawn()
     return true;
 }
 
+bool kpg::LoopingEntity::OnCreate()
+{
+    return true;
+}
+bool kpg::LoopingEntity::OnUpdate()
+{
+    return true;
+}
+bool kpg::LoopingEntity::OnDestroy()
+{
+    return true;
+}
+
 float kpg::LoopingEntity::GetYPos()
 {
     return YPos;
@@ -39,11 +52,6 @@ float kpg::LoopingEntity::GetYPos()
 float kpg::LoopingEntity::GetXPos()
 {
     return XPos;
-}
-
-uint32_t kpg::LoopingEntity::getID()
-{
-    return ID;
 }
 
 void kpg::LoopingEntity::CalcThread()
