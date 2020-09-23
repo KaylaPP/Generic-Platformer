@@ -18,6 +18,7 @@ namespace kpg
     {
     protected:
         bool end = false;
+        float Mass;
         float XPos, YPos;
         uint32_t Period; // In milliseconds
     private:
