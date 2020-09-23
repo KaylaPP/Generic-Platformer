@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <mutex>
 #include <unordered_map>
+#include <unordered_set>
 
 const int nWindowWidth = 1280;
 const int nWindowHeight = 800;
@@ -14,9 +15,18 @@ bool bJumped = false;
 bool bMovingLeft = false;
 bool bMovingRight = false;
 
-uint32_t NextID = 0;
-uint32_t getNextID() { return ++NextID; }
 std::unordered_map<uint32_t, std::pair<std::string, kpg::LoopingEntity*>> Entities;
+std::unordered_set<uint32_t> KnownIDs;
+uint32_t NextID = 0;
+uint32_t getNextID()
+{
+    while(KnownIDs.count(NextID) > 0)
+    {
+        NextID++;
+    }
+    KnownIDs.insert(NextID);
+    return NextID;
+}
 
 class BouncyBall : public kpg::LoopingEntity
 {
@@ -175,7 +185,7 @@ private:
 class PortalDemo : public olc::PixelGameEngine
 {
 private:
-#define ballcount 5
+#define ballcount 50
     std::unordered_map<std::string, olc::Renderable*> imgs;
 public:
     PortalDemo()
@@ -238,7 +248,7 @@ public:
             {
                 std::cout << key << " " << val.first << std::endl;
                 DrawDecal({ val.second->GetXPos(), val.second->GetYPos() }, imgs[val.first]->Decal());
-                FillRectDecal({ val.second->GetXPos(), val.second->GetYPos() }, { 8.0f, 8.0f }, olc::BLACK);
+                FillRectDecal({ val.second->GetXPos(), val.second->GetYPos() }, { 32.0f, 8.0f }, olc::BLACK);
                 DrawStringDecal({ val.second->GetXPos(), val.second->GetYPos() }, std::to_string(key));
             }
         }
