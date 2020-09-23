@@ -3,39 +3,39 @@
 #include "olcPixelGameEngine.h"
 
 #include <cstdlib>
+#include <mutex>
 #include <unordered_map>
 
-const int nWindowWidth = 640;
-const int nWindowHeight = 480;
+const int nWindowWidth = 1920;
+const int nWindowHeight = 1080;
 
 bool start = false;
 bool bJumped = false;
 bool bMovingLeft = false;
 bool bMovingRight = false;
 
+std::mutex EntityIDLock;
+uint32_t NewEntityID = 0;
+
+std::unordered_map<uint32_t, std::pair<std::string, std::shared_ptr<kpg::LoopingEntity>>> Entities;
+
 class BouncyBall : public kpg::LoopingEntity
 {
 private:
     float Gravity;
-    float XPos, YPos;
     float XVel, YVel;
-public:
-    BouncyBall()
-    {
-        img = "ball.png";
-    }
-    
-private:
-    std::string img;
-    
+
     bool OnCreate() override
     {
+        while(!EntityIDLock.try_lock());
+        ID = NewEntityID++;
+        EntityIDLock.unlock();
         Gravity = 1000.0f;
         XPos = float(rand() % (nWindowWidth - 32));
         YPos = float(rand() % (nWindowHeight - 32));
         YVel = float(rand() % 1000);
         XVel = float(rand() % 1000);
-        Period = 20; // In milliseconds
+        Period = 1; // In milliseconds
 
         return true;
     }
@@ -76,65 +76,23 @@ private:
     {
         return true;
     }
-    
-public:
-    bool Exists()
-    {
-        return !end;
-    }
-    
-    float GetXPos()
-    {
-        return float(XPos);
-    }
-    
-    float GetYPos()
-    {
-        return float(YPos);
-    }
-    
-    float GetXVel()
-    {
-        return float(XVel);
-    }
-    
-    float GetYVel()
-    {
-        return float(YVel);
-    }
-    
-    void Destroy()
-    {
-        end = true;
-    }
-    
-    std::string GetImageName()
-    {
-        return img;
-    }
 };
 
 class Player : public kpg::LoopingEntity
 {
 private:
     float Gravity;
-    float XPos, YPos;
     float XVel, YVel;
     float XAccel;
     float XVelMax;
-public:
-    Player()
-    {
-        // Select image file here
-        img = "player.png";
-    }
-private:
-    std::string img;
-    
+
     bool OnCreate() override
     {
         // Override values here. Do some other stuff too maybe
         // Velocity is pixels per second and acceleration is pixels per second^2
+        while(!EntityIDLock.try_lock());
+        ID = NewEntityID++;
+        EntityIDLock.unlock();
         Gravity = 1000.0f;
         XPos = 0.0f;
         YPos = 0.0f;
@@ -219,52 +177,13 @@ private:
     {
         return true;
     }
-    
-public:
-    bool Exists()
-    {
-        return !end;
-    }
-    
-    float GetXPos()
-    {
-        return float(XPos);
-    }
-    
-    float GetYPos()
-    {
-        return float(YPos);
-    }
-    
-    float GetXVel()
-    {
-        return float(XVel);
-    }
-    
-    float GetYVel()
-    {
-        return float(YVel);
-    }
-    
-    void Destroy()
-    {
-        end = true;
-    }
-    
-    std::string GetImageName()
-    {
-        return img;
-    }
 };
 
 class PortalDemo : public olc::PixelGameEngine
 {
 private:
 #define ballcount 1
-    Player p;
-    olc::Renderable player;
-    BouncyBall bs[ballcount];
-    olc::Renderable balls[ballcount];
+    std::map<std::string, std::shared_ptr<olc::Renderable>> imgs;
 public:
     PortalDemo()
     {
@@ -274,15 +193,35 @@ public:
 public:
     bool OnUserCreate() override
     {
-        p.Spawn();
-        player.Load(p.GetImageName());
+        std::string playerimage = "player.png";
+        std::shared_ptr<olc::Renderable> player;
+        std::string ballimage = "ball.png";
+        std::shared_ptr<olc::Renderable> ball;
+        imgs.insert_or_assign(playerimage, player);
+        imgs.insert_or_assign(ballimage, ball);
+
+        std::shared_ptr<kpg::LoopingEntity> p = std::make_shared<Player>();
+        p.get()->Spawn();
+        imgs[playerimage].get()->Load(playerimage);
+        Entities.insert_or_assign(p.get()->getID(), std::pair<std::string, std::shared_ptr<kpg::LoopingEntity>>( playerimage, p ) );
         
+        imgs[ballimage].get()->Load(ballimage);
         for(int i = 0; i < ballcount; i++)
         {
-            bs[i].Spawn();
-            balls[i].Load(bs[i].GetImageName());
+            std::shared_ptr<kpg::LoopingEntity> b = std::make_shared<BouncyBall>();
+            b.get()->Spawn();
+            Entities.insert_or_assign(p.get()->getID(), std::pair<std::string, std::shared_ptr<kpg::LoopingEntity>>( ballimage, b ) );
         }
-        
+
+        for(auto i = Entities.begin(); i != Entities.end(); i++)
+        {
+            for(auto j = Entities.begin(); j != Entities.end(); j++)
+            {
+                if(i != j && i->second.second.get()->getID() == j->second.second.get()->getID())
+                    std::cout << "NOOOOO!!!";
+            }
+        }
+
         return true;
     }
 
@@ -293,8 +232,6 @@ public:
         if(GetKey(olc::E).bPressed)
             return false;
 
-        if(p.Exists())
-            DrawDecal({ p.GetXPos(), p.GetYPos() }, player.Decal());
         if(GetKey(olc::SPACE).bPressed)
             start = true;
         
@@ -310,28 +247,19 @@ public:
             bJumped = true;
         
         
-        for(int i = 0; i < ballcount; i++)
+        for(auto i = Entities.begin(); i != Entities.end(); i++)
         {
-            if(bs[i].Exists())
+            if(i->second.second.get()->Exists())
             {
-                DrawDecal({ bs[i].GetXPos(), bs[i].GetYPos() }, balls[i].Decal());
+                DrawDecal({ i->second.second.get()->GetXPos(), i->second.second.get()->GetYPos() }, imgs[i->second.first].get()->Decal());
             }
         }
-        
-        
-        DrawStringDecal({ 0.0f, 0.0f }, std::to_string(p.GetXPos()) + ", " + std::to_string(p.GetYPos()) + ", " + std::to_string(p.GetXVel()) + ", " + std::to_string(p.GetYVel()), {0, 255, 0});
+
         return true;
     }
 
     bool OnUserDestroy() override 
     {
-        p.Destroy();
-
-        for(int i = 0; i < ballcount; i++)
-        {
-            bs[i].Destroy();
-        }
-
         return true;
     }
 };
@@ -340,7 +268,7 @@ int main(int argc, char const *argv[])
 {
     srand(uint32_t(time(nullptr)));
 	PortalDemo demo;
-	if (demo.Construct(nWindowWidth, nWindowHeight, 1, 1, false, true))
+	if (demo.Construct(nWindowWidth, nWindowHeight, 1, 1, false, false))
 		demo.Start();
 
 	return 0;

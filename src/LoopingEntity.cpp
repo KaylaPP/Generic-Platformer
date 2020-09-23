@@ -2,11 +2,48 @@
 #include <chrono>
 #include <thread>
 
+class EntityLoopException : public std::exception
+{
+public:
+    EntityLoopException(std::string exception)
+    {
+        err = exception;
+    }
+    
+private:
+    std::string err;
+    const char * what () const throw ()
+    {
+        return err.c_str();
+    }
+    
+};
+
+bool kpg::LoopingEntity::Exists()
+{
+    return !end;
+}
+
 bool kpg::LoopingEntity::Spawn()
 {
     std::thread calcthread(&LoopingEntity::CalcThread, this);
     calcthread.detach();
     return true;
+}
+
+float kpg::LoopingEntity::GetYPos()
+{
+    return YPos;
+}
+
+float kpg::LoopingEntity::GetXPos()
+{
+    return XPos;
+}
+
+uint32_t kpg::LoopingEntity::getID()
+{
+    return ID;
 }
 
 void kpg::LoopingEntity::CalcThread()
@@ -28,4 +65,9 @@ void kpg::LoopingEntity::CalcThread()
     }
     
     if(!OnDestroy()) throw EntityLoopException("OnDestroy method error");
+}
+
+void kpg::LoopingEntity::Destroy()
+{
+    end = true;
 }
