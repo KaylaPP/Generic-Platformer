@@ -1,7 +1,7 @@
 CXX=g++
 CFLAGS=-c -g -pthread -pedantic -std=c++17 -Wall
 LDFLAGS=-lX11 -lGL -lpthread -lpng -lstdc++fs
-EXECUTABLE=./SoliCurses-C.out
+EXECUTABLE=./Generic-Platformer.out
 SRCDIR=./src
 BINDIR=./bin
 
