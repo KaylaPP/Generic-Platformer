@@ -8,10 +8,13 @@
 
 #include "EntityVars.hpp"
 
-bool start = false;
-bool bJumped = false;
-bool bMovingLeft = false;
-bool bMovingRight = false;
+namespace kpg
+{
+    bool start = false;
+    bool bJumped = false;
+    bool bMovingLeft = false;
+    bool bMovingRight = false;
 
-std::unordered_map<uint32_t, std::pair<std::string, kpg::LoopingEntity*>> Entities;
-std::unordered_set<uint32_t> KnownIDs;
+    std::unordered_map<uint32_t, std::pair<std::string, kpg::LoopingEntity*>> Entities;
+    std::unordered_set<uint32_t> KnownIDs;
+}

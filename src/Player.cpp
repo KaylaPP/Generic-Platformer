@@ -9,7 +9,7 @@
 #include "Player.hpp"
 #include "EntityVars.hpp"
 
-bool Player::OnCreate() 
+bool kpg::Player::OnCreate()
 {
     // Override values here. Do some other stuff too maybe
     // Velocity is pixels per second and acceleration is pixels per second^2
@@ -25,7 +25,7 @@ bool Player::OnCreate()
     return true;
 }
 
-bool Player::OnUpdate()
+bool kpg::Player::OnUpdate()
 {
     if(start)
     {
@@ -93,7 +93,7 @@ bool Player::OnUpdate()
     return true;
 }
 
-bool Player::OnDestroy()
+bool kpg::Player::OnDestroy()
 {
     return true;
 }

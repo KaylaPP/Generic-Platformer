@@ -5,6 +5,12 @@
 
 namespace kpg
 {
+    enum class EntityType
+    {
+        PLAYER,
+        BALL
+    };
+
     struct Collision
     {
         float XPos;
@@ -20,6 +26,7 @@ namespace kpg
         bool end = false;
         float Mass;
         float XPos, YPos;
+        float XVel, YVel;
         uint32_t Period; // In milliseconds
     private:
         virtual bool OnCreate();

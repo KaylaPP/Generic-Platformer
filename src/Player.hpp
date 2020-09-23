@@ -11,18 +11,20 @@
 
 #include "LoopingEntity.hpp"
 
-class Player : public kpg::LoopingEntity
+namespace kpg 
 {
-private:
-    float Gravity;
-    float XVel, YVel;
-    float XAccel;
-    float XVelMax;
+    class Player : public kpg::LoopingEntity
+    {
+    private:
+        float Gravity;
+        float XAccel;
+        float XVelMax;
 
-    bool OnCreate() override;
-    bool OnUpdate() override;
-    bool OnDestroy() override;
-    
-};
+        bool OnCreate() override;
+        bool OnUpdate() override;
+        bool OnDestroy() override;
+
+    };
+}
 
 #endif /* Player_hpp */

@@ -10,18 +10,18 @@
 static uint32_t NextID = 0;
 uint32_t getNextID()
 {
-    while(KnownIDs.count(NextID) > 0)
+    while(kpg::KnownIDs.count(NextID) > 0)
     {
         NextID++;
     }
-    KnownIDs.insert(NextID);
+    kpg::KnownIDs.insert(NextID);
     return NextID;
 }
 
 class PortalDemo : public olc::PixelGameEngine
 {
 private:
-#define ballcount 500
+#define ballcount 50
     std::unordered_map<std::string, olc::Renderable*> imgs;
 public:
     PortalDemo()
@@ -42,16 +42,16 @@ public:
         imgs[playerimage] = player;
         imgs[ballimage] = ball;
 
-        kpg::LoopingEntity * p = new Player();
+        kpg::LoopingEntity * p = new kpg::Player();
         p->Spawn();
         std::pair<std::string, kpg::LoopingEntity*> newplayer(playerimage, p);
-        Entities[getNextID()] = newplayer;
+        kpg::Entities[getNextID()] = newplayer;
         for(int i = 0; i < ballcount; i++)
         {
-            kpg::LoopingEntity * b = new BouncyBall();
+            kpg::LoopingEntity * b = new kpg::BouncyBall(rand() % (kpg::nWindowWidth - 32), rand() % (kpg::nWindowWidth - 32), rand() % 1000, rand() % 1000);
             b->Spawn();
             std::pair<std::string, kpg::LoopingEntity*> newball(ballimage, b);
-            Entities[getNextID()] = newball;
+            kpg::Entities[getNextID()] = newball;
         }
 
         return true;
@@ -65,20 +65,20 @@ public:
             return false;
 
         if(GetKey(olc::SPACE).bPressed)
-            start = true;
+            kpg::start = true;
         
         if(GetKey(olc::LEFT).bHeld)
-            bMovingLeft = true;
+            kpg::bMovingLeft = true;
         else
-            bMovingLeft = false;
+            kpg::bMovingLeft = false;
         if(GetKey(olc::RIGHT).bHeld)
-            bMovingRight = true;
+            kpg::bMovingRight = true;
         else
-            bMovingRight = false;
+            kpg::bMovingRight = false;
         if(GetKey(olc::UP).bPressed)
-            bJumped = true;
+            kpg::bJumped = true;
         
-        for(const auto & [key, val] : Entities)
+        for(const auto & [key, val] : kpg::Entities)
         {
             if(val.second->Exists())
             {
@@ -99,9 +99,9 @@ public:
 
 int main(int argc, char const *argv[])
 {
-    srand(uint32_t(time(nullptr)));
+    srand(time(nullptr));
 	PortalDemo demo;
-	if (demo.Construct(nWindowWidth, nWindowHeight, 1, 1, false, true))
+	if (demo.Construct(kpg::nWindowWidth, kpg::nWindowHeight, 1, 1, false, false))
 		demo.Start();
 
 	return 0;

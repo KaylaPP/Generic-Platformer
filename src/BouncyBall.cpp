@@ -1,19 +1,23 @@
 #include "BouncyBall.hpp"
 #include "EntityVars.hpp"
 
-bool BouncyBall::OnCreate()
+kpg::BouncyBall::BouncyBall(float XPos, float YPos, float XVel, float YVel)
+{
+    this->XPos = XPos;
+    this->YPos = YPos;
+    this->XVel = XVel;
+    this->YVel = YVel;
+}
+
+bool kpg::BouncyBall::OnCreate()
 {
     Gravity = 1000.0f;
-    XPos = float(rand() % (nWindowWidth - 32));
-    YPos = float(rand() % (nWindowHeight - 32));
-    YVel = float(rand() % 1000);
-    XVel = float(rand() % 1000);
-    Period = 1; // In milliseconds
+    Period = 10; // In milliseconds
 
     return true;
 }
 
-bool BouncyBall::OnUpdate()
+bool kpg::BouncyBall::OnUpdate()
 {
     if(start)
     {
@@ -45,7 +49,7 @@ bool BouncyBall::OnUpdate()
     return true;
 }
 
-bool BouncyBall::OnDestroy()
+bool kpg::BouncyBall::OnDestroy()
 {
     return true;
 }
