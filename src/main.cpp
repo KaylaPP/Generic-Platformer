@@ -21,7 +21,7 @@ uint32_t getNextID()
 class PortalDemo : public olc::PixelGameEngine
 {
 private:
-#define ballcount 50
+#define ballcount 5
     std::unordered_map<std::string, olc::Renderable*> imgs;
 public:
     PortalDemo()
@@ -99,7 +99,7 @@ public:
 
 int main(int argc, char const *argv[])
 {
-    srand(time(nullptr));
+    srand(uint32_t(time(nullptr)));
 	PortalDemo demo;
 	if (demo.Construct(kpg::nWindowWidth, kpg::nWindowHeight, 1, 1, false, false))
 		demo.Start();

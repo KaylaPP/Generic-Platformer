@@ -3,6 +3,9 @@
 
 kpg::BouncyBall::BouncyBall(float XPos, float YPos, float XVel, float YVel)
 {
+    Height = 32.0f;
+    Width = 32.0f;
+    Mass = 10.0f;
     this->XPos = XPos;
     this->YPos = YPos;
     this->XVel = XVel;
@@ -29,9 +32,9 @@ bool kpg::BouncyBall::OnUpdate()
             YPos = 0;
             YVel = YVel * -0.95f;
         }
-        if(YPos > nWindowHeight - 32)
+        if(YPos > nWindowHeight - Height)
         {
-            YPos = nWindowHeight - 32;
+            YPos = nWindowHeight - Height;
             YVel = YVel * -0.95f;
         }
         if(XPos < 0)
@@ -39,10 +42,90 @@ bool kpg::BouncyBall::OnUpdate()
             XPos = 0;
             XVel = XVel * -0.95f;
         }
-        if(XPos > nWindowWidth - 32)
+        if(XPos > nWindowWidth - Width)
         {
-            XPos = nWindowWidth - 32;
+            XPos = nWindowWidth - Width;
             XVel = XVel * -0.95f;
+        }
+        
+        // Collision detection
+        for(auto e : Entities)
+        {
+            kpg::LoopingEntity * E = e.second.second;
+            if(E == this)
+                break;
+            ProcessingCollision = true;
+            switch(E->GetEntityType())
+            {
+            case kpg::EntityType::PLAYER:
+                if(XVel > 0) // Right
+                {
+                    if(YVel > 0) // Falling
+                    {
+                        if(GetSE().X >= E->GetNW().X && GetSE().Y >= E->GetNW().Y)
+                        {
+                            E->Collide({ XVel, YVel, Mass });
+                            Collide({ E->GetXVel(), E->GetYVel(), E->GetMass() });
+                        }
+                    }
+                    else if(YVel < 0) // Up
+                    {
+                        if(GetNE().X >= E->GetSW().X && GetNE().Y <= E->GetSW().Y)
+                        {
+                            E->Collide({ XVel, YVel, Mass });
+                            Collide({ E->GetXVel(), E->GetYVel(), E->GetMass() });
+                        }
+                    }
+                }
+                else if(XVel < 0) // Left
+                {
+                    if(YVel > 0) // Falling
+                    {
+                        if(GetSW().X <= E->GetNE().X && GetSW().Y >= E->GetNE().Y)
+                        {
+                            E->Collide({ XVel, YVel, Mass });
+                            Collide({ E->GetXVel(), E->GetYVel(), E->GetMass() });
+                        }
+                    }
+                    else if(YVel < 0) // Up
+                    {
+                        if(GetNW().X <= E->GetSE().X && GetNW().Y <= E->GetSE().Y)
+                        {
+                            E->Collide({ XVel, YVel, Mass });
+                            Collide({ E->GetXVel(), E->GetYVel(), E->GetMass() });
+                        }
+                    }
+                }
+                break;
+            case kpg::EntityType::BALL:
+                if(XVel > 0) // Right
+                {
+                    if(YVel > 0) // Falling
+                    {
+                        
+                    }
+                    else if(YVel < 0) // Up
+                    {
+                        
+                    }
+                }
+                else if(XVel < 0) // Left
+                {
+                    if(YVel > 0) // Falling
+                    {
+                        
+                    }
+                    else if(YVel < 0) // Up
+                    {
+                        
+                    }
+                }
+                break;
+            }
+            ProcessingCollision = false;
+            // Parse collision list
+            
+            
         }
     }
 

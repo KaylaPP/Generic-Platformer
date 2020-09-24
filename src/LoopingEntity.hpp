@@ -1,7 +1,9 @@
 #ifndef LoopingEntity_hpp
 #define LoopingEntity_hpp
 
+#include <mutex>
 #include <string>
+#include <queue>
 
 namespace kpg
 {
@@ -13,32 +15,54 @@ namespace kpg
 
     struct Collision
     {
-        float XPos;
-        float YPos;
         float XVel;
         float YVel;
         float mass;
     };
 
+    struct Coordinates
+    {
+        float X;
+        float Y;
+    };
+
     class LoopingEntity
     {
+    public:
+        std::mutex CollisionMutex;
     protected:
         bool end = false;
+        bool ProcessingCollision = false;
         float Mass;
+        float Height, Width;
         float XPos, YPos;
         float XVel, YVel;
         uint32_t Period; // In milliseconds
-    private:
+        EntityType etype;
+        std::queue<Collision> Collisions;
+    private: // Multithreading
         virtual bool OnCreate();
         virtual bool OnUpdate();
         virtual bool OnDestroy();
         void CalcThread();
-    public:
+    public: // Get Entity Characteristics
         bool Exists();
         bool Spawn();
+        EntityType GetEntityType();
+        float GetHeight();
+        float GetWidth();
+        float GetMass();
         float GetXPos();
         float GetYPos();
+        float GetXVel();
+        float GetYVel();
         void Destroy();
+    public: // Collision-related Methods
+        void Collide(Collision c);
+        Coordinates GetNE();
+        Coordinates GetSE();
+        Coordinates GetSW();
+        Coordinates GetNW();
     };
 
 }

@@ -13,6 +13,9 @@ bool kpg::Player::OnCreate()
 {
     // Override values here. Do some other stuff too maybe
     // Velocity is pixels per second and acceleration is pixels per second^2
+    Height = 64.0f;
+    Width = 64.0f;
+    Mass = 100.0f;
     Gravity = 1000.0f;
     XPos = 0.0f;
     YPos = 0.0f;
@@ -73,9 +76,9 @@ bool kpg::Player::OnUpdate()
             YPos = 0.0f;
             YVel = 0.0f;
         }
-        if(YPos > nWindowHeight - 64)
+        if(YPos > nWindowHeight - Height)
         {
-            YPos = float(nWindowHeight - 64);
+            YPos = float(nWindowHeight - Height);
             YVel = 0.0f;
         }
         if(XPos < 0)
@@ -83,9 +86,9 @@ bool kpg::Player::OnUpdate()
             XPos = 0.0f;
             XVel = 0.0f;
         }
-        if(XPos > nWindowWidth - 64)
+        if(XPos > nWindowWidth - Width)
         {
-            XPos = float(nWindowWidth - 64);
+            XPos = float(nWindowWidth - Width);
             XVel = 0.0f;
         }
     }
