@@ -59,11 +59,6 @@ float kpg::LoopingEntity::GetWidth()
     return Width;
 }
 
-float kpg::LoopingEntity::GetMass()
-{
-    return Mass;
-}
-
 float kpg::LoopingEntity::GetXPos()
 {
     return XPos;
@@ -127,8 +122,9 @@ void kpg::LoopingEntity::CalcThread()
 
 void kpg::LoopingEntity::Collide(Collision newcollision)
 {
-    if(!ProcessingCollision)
-        Collisions.push(newcollision);
+    CollisionMutex.lock();
+    Collisions.push(newcollision);
+    CollisionMutex.unlock();
 }
 
 void kpg::LoopingEntity::Destroy()

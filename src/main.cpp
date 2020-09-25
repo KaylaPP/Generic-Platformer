@@ -21,7 +21,7 @@ uint32_t getNextID()
 class PortalDemo : public olc::PixelGameEngine
 {
 private:
-#define ballcount 5
+#define ballcount 50
     std::unordered_map<std::string, olc::Renderable*> imgs;
 public:
     PortalDemo()

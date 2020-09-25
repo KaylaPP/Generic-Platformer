@@ -15,7 +15,6 @@ bool kpg::Player::OnCreate()
     // Velocity is pixels per second and acceleration is pixels per second^2
     Height = 64.0f;
     Width = 64.0f;
-    Mass = 100.0f;
     Gravity = 1000.0f;
     XPos = 0.0f;
     YPos = 0.0f;

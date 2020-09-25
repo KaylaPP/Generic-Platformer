@@ -15,9 +15,9 @@ namespace kpg
 
     struct Collision
     {
+        EntityType E;
         float XVel;
         float YVel;
-        float mass;
     };
 
     struct Coordinates
@@ -33,7 +33,6 @@ namespace kpg
     protected:
         bool end = false;
         bool ProcessingCollision = false;
-        float Mass;
         float Height, Width;
         float XPos, YPos;
         float XVel, YVel;
