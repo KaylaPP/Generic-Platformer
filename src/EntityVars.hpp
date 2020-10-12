@@ -8,8 +8,8 @@
 
 namespace kpg
 {
-    const int nWindowWidth = 1280;
-    const int nWindowHeight = 800;
+    const int nWindowWidth = 320;
+    const int nWindowHeight = 240;
 
     extern bool start;
     extern bool bJumped;

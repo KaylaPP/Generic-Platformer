@@ -49,16 +49,6 @@ kpg::EntityType kpg::LoopingEntity::GetEntityType()
     return etype;
 }
 
-float kpg::LoopingEntity::GetHeight()
-{
-    return Height;
-}
-
-float kpg::LoopingEntity::GetWidth()
-{
-    return Width;
-}
-
 float kpg::LoopingEntity::GetXPos()
 {
     return XPos;
@@ -77,26 +67,6 @@ float kpg::LoopingEntity::GetXVel()
 float kpg::LoopingEntity::GetYVel()
 {
     return YVel;
-}
-
-kpg::Coordinates kpg::LoopingEntity::GetNE()
-{
-    return { XPos + Width, YPos };
-}
-
-kpg::Coordinates kpg::LoopingEntity::GetSE()
-{
-    return { XPos + Width, YPos + Height };
-}
-
-kpg::Coordinates kpg::LoopingEntity::GetSW()
-{
-    return { XPos, YPos + Height };
-}
-
-kpg::Coordinates kpg::LoopingEntity::GetNW()
-{
-    return { XPos, YPos };
 }
 
 void kpg::LoopingEntity::CalcThread()
@@ -118,13 +88,6 @@ void kpg::LoopingEntity::CalcThread()
     }
     
     if(!OnDestroy()) throw EntityLoopException("OnDestroy method error");
-}
-
-void kpg::LoopingEntity::Collide(Collision newcollision)
-{
-    CollisionMutex.lock();
-    Collisions.push(newcollision);
-    CollisionMutex.unlock();
 }
 
 void kpg::LoopingEntity::Destroy()

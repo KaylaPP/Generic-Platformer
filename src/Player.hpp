@@ -19,7 +19,8 @@ namespace kpg
         float Gravity;
         float XAccel;
         float XVelMax;
-
+        float Width;
+        float Height;
         bool OnCreate() override;
         bool OnUpdate() override;
         bool OnDestroy() override;

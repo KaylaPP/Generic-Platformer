@@ -4,6 +4,7 @@
 #include "BouncyBall.hpp"
 #include "EntityVars.hpp"
 #include "Player.hpp"
+#include "MovingPlatform.hpp"
 
 #include <cstdlib>
 
@@ -21,7 +22,7 @@ uint32_t getNextID()
 class PortalDemo : public olc::PixelGameEngine
 {
 private:
-#define ballcount 50
+#define ballcount 5
     std::unordered_map<std::string, olc::Renderable*> imgs;
 public:
     PortalDemo()
@@ -35,6 +36,7 @@ public:
         std::string playerimage = "player.png";
         olc::Renderable * player = new olc::Renderable();
         player->Load(playerimage);
+
         std::string ballimage = "ball.png";
         olc::Renderable * ball = new olc::Renderable();
         ball->Load(ballimage);
@@ -46,12 +48,15 @@ public:
         p->Spawn();
         std::pair<std::string, kpg::LoopingEntity*> newplayer(playerimage, p);
         kpg::Entities[getNextID()] = newplayer;
+        srand(uint32_t(time(nullptr)));
         for(int i = 0; i < ballcount; i++)
         {
-            kpg::LoopingEntity * b = new kpg::BouncyBall(rand() % (kpg::nWindowWidth - 32), rand() % (kpg::nWindowWidth - 32), rand() % 1000, rand() % 1000);
+            int xoffset = rand() % 5;
+            kpg::LoopingEntity * b = new kpg::BouncyBall(200 + xoffset, rand() % (kpg::nWindowHeight - 32), 0, 0);
             b->Spawn();
             std::pair<std::string, kpg::LoopingEntity*> newball(ballimage, b);
             kpg::Entities[getNextID()] = newball;
+            std::cout << i << " " << xoffset << std::endl;
         }
 
         return true;
@@ -66,7 +71,7 @@ public:
 
         if(GetKey(olc::SPACE).bPressed)
             kpg::start = true;
-        
+
         if(GetKey(olc::LEFT).bHeld)
             kpg::bMovingLeft = true;
         else
@@ -83,8 +88,7 @@ public:
             if(val.second->Exists())
             {
                 DrawDecal({ val.second->GetXPos(), val.second->GetYPos() }, imgs[val.first]->Decal());
-                FillRectDecal({ val.second->GetXPos(), val.second->GetYPos() }, { 32.0f, 8.0f }, olc::BLACK);
-                DrawStringDecal({ val.second->GetXPos(), val.second->GetYPos() }, std::to_string(key));
+                DrawStringDecal({ val.second->GetXPos(), val.second->GetYPos() }, std::to_string(val.second->GetXVel()));
             }
         }
 
@@ -99,7 +103,6 @@ public:
 
 int main(int argc, char const *argv[])
 {
-    srand(uint32_t(time(nullptr)));
 	PortalDemo demo;
 	if (demo.Construct(kpg::nWindowWidth, kpg::nWindowHeight, 1, 1, false, false))
 		demo.Start();

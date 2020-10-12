@@ -11,7 +11,8 @@ namespace kpg
         BouncyBall(float XPos = 0.0f, float YPos = 0.0f, float XVel = 0.0f, float YVel = 0.0f);
     private:
         float Gravity;
-
+        float Diameter;
+        float XAccelCollision, YAccelCollision;
         bool OnCreate() override;
         bool OnUpdate() override;
         bool OnDestroy() override;
