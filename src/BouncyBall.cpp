@@ -26,8 +26,6 @@ bool kpg::BouncyBall::OnCreate()
     Gravity = 1000.0f;
     Period = 10; // In milliseconds
     etype = EntityType::BALL;
-    XAccelCollision = 0.0f;
-    YAccelCollision = 0.0f;
     return true;
 }
 
@@ -63,53 +61,44 @@ bool kpg::BouncyBall::OnUpdate()
         for(auto e : Entities)
         {
             kpg::LoopingEntity * E = e.second.second;
-            if(E == this)
-                break;
-            switch(E->GetEntityType())
+            if(E != this)
             {
-            default:
-                break;
-            case kpg::EntityType::BALL:
-                const float XCENTER = (XPos + Diameter / 2.0f);
-                const float YCENTER = (YPos + Diameter / 2.0f);
-                const float EXCENTER = (E->GetXPos() + Diameter / 2.0f);
-                const float EYCENTER = (E->GetYPos() + Diameter / 2.0f);
-
-                const float distance = std::sqrtf(std::powf(XCENTER - EXCENTER, 2.0f) + std::powf(YCENTER - EYCENTER, 2.0f));
-                if(distance + 0.01f < Diameter)
+                switch(E->GetEntityType())
                 {
-                    const float theta = std::atanf((YCENTER - EYCENTER) / (XCENTER - EXCENTER));
-                    const float surfacedelta = abs(distance - Diameter) / Diameter;
-                    //std::cout << theta * 180 / 3.1415f << std::endl;
-                    if(!isnan(cosf(theta)))
+                default:
+                    break;
+                case kpg::EntityType::PLAYER:
+                    if(E->GetXPos() + nPlayerWidth >= XPos &&
+                        E->GetXPos() <= XPos + Diameter &&
+                        E->GetYPos() + nPlayerHeight >= YPos &&
+                        E->GetYPos() <= YPos + Diameter)
                     {
-                        XAccelCollision = surfacedelta * signof(XCENTER - EXCENTER) * cosf(theta);
+                        Destroy();
                     }
-                    else
-                    {
-                        XAccelCollision = rand() % 10;
-                        std::cout << "a";
-                    }
-                    if(!isnan(sinf(theta)))
-                    {
-                        YAccelCollision = surfacedelta * signof(YCENTER - EYCENTER) * sinf(theta);
-                    }
-                    else
-                    {
-                        YAccelCollision = rand() % 10;
-                        std::cout << "a";
-                    }
-                }
-                else
-                {
-                    XAccelCollision = 0.0f;
-                    YAccelCollision = 0.0f;
-                }
+                    break;
+                case kpg::EntityType::BALL:
+                    const float XCENTER = (XPos + Diameter / 2.0f);
+                    const float YCENTER = (YPos + Diameter / 2.0f);
+                    const float EXCENTER = (E->GetXPos() + Diameter / 2.0f);
+                    const float EYCENTER = (E->GetYPos() + Diameter / 2.0f);
 
-                XVel += XAccelCollision;
-                YVel += YAccelCollision;
+                    const float distance = std::sqrtf(std::powf(XCENTER - EXCENTER, 2.0f) + std::powf(YCENTER - EYCENTER, 2.0f));
+                    if(distance < Diameter)
+                    {
+                        const float theta = std::atanf((YCENTER - EYCENTER) / (XCENTER - EXCENTER));
+                        const int coefficient = 10;
+                        if(!isnan(cosf(theta)))
+                        {
+                            XVel += coefficient * signof(XCENTER - EXCENTER) * cosf(theta);
+                        }
+                        if(!isnan(sinf(theta)))
+                        {
+                            YVel += coefficient * signof(YCENTER - EYCENTER) * sinf(theta);
+                        }
+                    }
 
-                break;
+                    break;
+                }
             }
         }
     }

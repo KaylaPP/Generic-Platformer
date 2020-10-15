@@ -4,7 +4,6 @@
 #include "BouncyBall.hpp"
 #include "EntityVars.hpp"
 #include "Player.hpp"
-#include "MovingPlatform.hpp"
 
 #include <cstdlib>
 
@@ -22,7 +21,7 @@ uint32_t getNextID()
 class PortalDemo : public olc::PixelGameEngine
 {
 private:
-#define ballcount 5
+#define ballcount 500
     std::unordered_map<std::string, olc::Renderable*> imgs;
 public:
     PortalDemo()
@@ -51,12 +50,10 @@ public:
         srand(uint32_t(time(nullptr)));
         for(int i = 0; i < ballcount; i++)
         {
-            int xoffset = rand() % 5;
-            kpg::LoopingEntity * b = new kpg::BouncyBall(200 + xoffset, rand() % (kpg::nWindowHeight - 32), 0, 0);
+            kpg::LoopingEntity * b = new kpg::BouncyBall(rand() % (kpg::nWindowWidth - 32), rand() % (kpg::nWindowHeight - 32), rand() % 100, rand() % 100);
             b->Spawn();
             std::pair<std::string, kpg::LoopingEntity*> newball(ballimage, b);
             kpg::Entities[getNextID()] = newball;
-            std::cout << i << " " << xoffset << std::endl;
         }
 
         return true;
@@ -83,13 +80,30 @@ public:
         if(GetKey(olc::UP).bPressed)
             kpg::bJumped = true;
         
-        for(const auto & [key, val] : kpg::Entities)
+        for(auto key : kpg::KnownIDs)
         {
-            if(val.second->Exists())
+            auto E = kpg::Entities[key].second;
+            auto IMG = kpg::Entities[key].first;
+            if(E->Exists())
             {
-                DrawDecal({ val.second->GetXPos(), val.second->GetYPos() }, imgs[val.first]->Decal());
-                DrawStringDecal({ val.second->GetXPos(), val.second->GetYPos() }, std::to_string(val.second->GetXVel()));
+                DrawDecal({ E->GetXPos(), E->GetYPos() }, imgs[IMG]->Decal());
             }
+        }
+
+        for(auto key : kpg::KnownIDs)
+        {
+            auto E = kpg::Entities[key].second;
+            if(E->isDead())
+            {
+                kpg::Entities.erase(key);
+                kpg::DeadIDs.push(key);
+            }
+        }
+
+        while(!kpg::DeadIDs.empty())
+        {
+            kpg::KnownIDs.erase(kpg::DeadIDs.front());
+            kpg::DeadIDs.pop();
         }
 
         return true;

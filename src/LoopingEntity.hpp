@@ -25,6 +25,7 @@ namespace kpg
     {
     protected:
         bool end = false;
+        bool dead = false;
         float XPos, YPos;
         float XVel, YVel;
         uint32_t Period; // In milliseconds
@@ -36,6 +37,7 @@ namespace kpg
         void CalcThread();
     public: // Get Entity Characteristics
         bool Exists();
+        bool isDead();
         bool Spawn();
         EntityType GetEntityType();
         float GetXPos();

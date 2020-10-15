@@ -23,7 +23,7 @@ bool kpg::Player::OnCreate()
     XAccel = 1000.0f;
     XVelMax = 500.0f;
     Period = 1; // In milliseconds
-
+    etype = EntityType::PLAYER;
     return true;
 }
 

@@ -12,7 +12,6 @@ namespace kpg
     private:
         float Gravity;
         float Diameter;
-        float XAccelCollision, YAccelCollision;
         bool OnCreate() override;
         bool OnUpdate() override;
         bool OnDestroy() override;

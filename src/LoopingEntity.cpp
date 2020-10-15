@@ -24,6 +24,11 @@ bool kpg::LoopingEntity::Exists()
     return !end;
 }
 
+bool kpg::LoopingEntity::isDead()
+{
+    return dead;
+}
+
 bool kpg::LoopingEntity::Spawn()
 {
     std::thread calcthread(&LoopingEntity::CalcThread, this);
@@ -86,8 +91,9 @@ void kpg::LoopingEntity::CalcThread()
         next += period;
         std::this_thread::sleep_until(next);
     }
-    
+
     if(!OnDestroy()) throw EntityLoopException("OnDestroy method error");
+    dead = true;
 }
 
 void kpg::LoopingEntity::Destroy()
